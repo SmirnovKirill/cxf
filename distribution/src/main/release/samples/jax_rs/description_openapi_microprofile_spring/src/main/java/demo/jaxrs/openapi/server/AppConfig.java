@@ -1,0 +1,36 @@
+package demo.jaxrs.openapi.server;
+
+import java.util.Arrays;
+
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.microprofile.openapi.OpenApiFeature;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
+@Configuration
+public class AppConfig {
+    @Bean
+    OpenApiFeature openApiFeature() {
+        final OpenApiFeature openApiFeature = new OpenApiFeature();
+        openApiFeature.setTitle("Sample REST Application");
+        openApiFeature.setScan(false);
+        return openApiFeature;
+    }
+    
+    @Bean
+    Sample sampleResource() {
+        return new Sample();
+    }
+    
+    @Bean
+    org.apache.cxf.endpoint.Server server() {
+        final JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean ();
+        factory.setFeatures(Arrays.asList(openApiFeature()));
+        factory.setServiceBean(sampleResource());
+        factory.setAddress("http://localhost:9000/sample");
+        factory.setProvider(new JacksonJsonProvider());
+        return factory.create();
+    }
+}
